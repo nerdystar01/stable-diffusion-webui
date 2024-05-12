@@ -117,3 +117,21 @@ def wrap_gradio_call(func, extra_outputs=None, add_stats=False):
         return tuple(res)
 
     return f
+
+def send_request(sd_dict, controlnet_unit_list, input_email):
+    print("send_request 도달")
+    print(sd_dict)
+    print(controlnet_unit_list)
+    print(input_email)
+    return print("ok")
+
+def wrap_server_call(func, input_email):
+    print("확인하는 부분")
+    print(input_email)
+    @wraps(func)
+    def f(*args, **kwargs):
+        sd_dict, controlnet_unit_list = func(*args, **kwargs)
+        
+        return send_request(sd_dict, controlnet_unit_list, input_email)
+    
+    return f

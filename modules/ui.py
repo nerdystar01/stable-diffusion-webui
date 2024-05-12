@@ -10,7 +10,7 @@ import gradio as gr
 import gradio.utils
 import numpy as np
 from PIL import Image, PngImagePlugin  # noqa: F401
-from modules.call_queue import wrap_gradio_gpu_call, wrap_queued_call, wrap_gradio_call
+from modules.call_queue import wrap_gradio_gpu_call, wrap_queued_call, wrap_gradio_call, wrap_server_call
 
 from modules import gradio_extensons, sd_schedulers  # noqa: F401
 from modules import sd_hijack, sd_models, script_callbacks, ui_extensions, deepbooru, extra_networks, ui_common, ui_postprocessing, progress, ui_loadsave, shared_items, ui_settings, timer, sysinfo, ui_checkpoint_merger, scripts, sd_samplers, processing, ui_extra_networks, ui_toprow, launch_utils
@@ -264,9 +264,10 @@ def create_ui():
 
     with gr.Blocks(analytics_enabled=False) as txt2img_interface:
         toprow = ui_toprow.Toprow(is_img2img=False, is_compact=shared.opts.compact_prompt_box)
-
         dummy_component = gr.Label(visible=False)
-
+        
+        email_input = gr.Textbox(placeholder="Enter your email", label="nerdystar email", elem_id="_email", elem_classes="generate-box-email", tooltip="Enter your email address for notifications")
+        
         extra_tabs = gr.Tabs(elem_id="txt2img_extra_tabs", elem_classes=["extra-networks"])
         extra_tabs.__enter__()
 
@@ -277,7 +278,7 @@ def create_ui():
                 stack.enter_context(gr.Column(variant='compact', elem_id="txt2img_settings"))
 
                 scripts.scripts_txt2img.prepare_ui()
-
+                
                 for category in ordered_ui_categories():
                     if category == "prompt":
                         toprow.create_inline_toprow_prompts()
@@ -377,6 +378,7 @@ def create_ui():
             output_panel = create_output_panel("txt2img", opts.outdir_txt2img_samples, toprow)
 
             txt2img_inputs = [
+                email_input,
                 dummy_component,
                 toprow.prompt,
                 toprow.negative_prompt,
@@ -399,7 +401,7 @@ def create_ui():
                 hr_prompt,
                 hr_negative_prompt,
                 override_settings,
-            ] + custom_inputs
+            ] + custom_inputs 
 
             txt2img_outputs = [
                 output_panel.gallery,
@@ -408,16 +410,32 @@ def create_ui():
                 output_panel.html_log,
             ]
 
+            # txt2img_args = dict(
+            #     fn=wrap_gradio_gpu_call(modules.txt2img.txt2img, extra_outputs=[None, '', '']),
+            #     _js="submit",
+            #     inputs=txt2img_inputs,
+            #     outputs=txt2img_outputs,
+            #     show_progress=False,
+            # )
+
             txt2img_args = dict(
-                fn=wrap_gradio_gpu_call(modules.txt2img.txt2img, extra_outputs=[None, '', '']),
+                fn=modules.txt2img.txt2img_with_server,
                 _js="submit",
-                inputs=txt2img_inputs,
+                inputs= txt2img_inputs,
                 outputs=txt2img_outputs,
                 show_progress=False,
             )
-
+            
             toprow.prompt.submit(**txt2img_args)
             toprow.submit.click(**txt2img_args)
+            
+            # server_txt2img_args = dict(
+            #     fn=wrap_server_call(modules.txt2img.txt2img_with_server, input_email= toprow.email_input),
+            #     _js="submit_server",
+            #     inputs=txt2img_inputs,
+            #     outputs=txt2img_outputs,
+            #     show_progress=False,
+            # )    
 
             output_panel.button_upscale.click(
                 fn=wrap_gradio_gpu_call(modules.txt2img.txt2img_upscale, extra_outputs=[None, '', '']),
