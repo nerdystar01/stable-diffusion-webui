@@ -266,8 +266,6 @@ def create_ui():
         toprow = ui_toprow.Toprow(is_img2img=False, is_compact=shared.opts.compact_prompt_box)
         dummy_component = gr.Label(visible=False)
         
-        email_input = gr.Textbox(placeholder="Enter your email", label="nerdystar email", elem_id="_email", elem_classes="generate-box-email", tooltip="Enter your email address for notifications")
-        
         extra_tabs = gr.Tabs(elem_id="txt2img_extra_tabs", elem_classes=["extra-networks"])
         extra_tabs.__enter__()
 
@@ -377,9 +375,11 @@ def create_ui():
 
             output_panel = create_output_panel("txt2img", opts.outdir_txt2img_samples, toprow)
 
+            
+
             txt2img_inputs = [
-                email_input,
                 dummy_component,
+                toprow.email_input,
                 toprow.prompt,
                 toprow.negative_prompt,
                 toprow.ui_styles.dropdown,

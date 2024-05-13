@@ -159,6 +159,23 @@ function submit() {
     return res;
 }
 
+function submit_2() {
+
+    var id = randomId();
+    localSet("txt2img_task_id", id);
+
+    // requestProgress(id, gradioApp().getElementById('txt2img_gallery_container'), gradioApp().getElementById('txt2img_gallery'), function() {
+    //     showSubmitButtons('txt2img', true);
+    //     localRemove("txt2img_task_id");
+    //     showRestoreProgressButton('txt2img', false);
+    // });
+    var res = create_submit_args(arguments);
+
+    res[0] = id;
+    print(res)
+    return res;
+}
+
 function submit_txt2img_upscale() {
     var res = submit(...arguments);
 

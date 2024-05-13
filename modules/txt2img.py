@@ -1,4 +1,4 @@
-import re
+import requests
 import io
 import base64
 import json
@@ -138,17 +138,11 @@ def txt2img(id_task: str, request: gr.Request, *args):
     return processed.images, generation_info_js, plaintext_to_html(processed.info), plaintext_to_html(processed.comments, classname="comments")
 
 def txt2img_with_server(id_task: str, request: gr.Request, *args):
-    
-
     email_input = args[0]
-    print("이메일 등록 확인2")
-    print(email_input)
 
-    generate_params = args[1:]
-    print("실제 생성 파라미티 확인")
-    print(generate_params)
+    params = args[1:]
 
-    p = txt2img_create_processing(id_task, request, *generate_params)
+    p = txt2img_create_processing(id_task, request, *params)
     
     sd_dict = {
         "model_hash" : p.sd_model_hash, 
@@ -192,6 +186,9 @@ def txt2img_with_server(id_task: str, request: gr.Request, *args):
                 server_controlnet_dict["processor_res"] = controlnet_dict['processor_res']
                 server_controlnet_dict["weight"] = controlnet_dict['weight']
                 server_controlnet_dict["module"] = controlnet_dict['module']
+                server_controlnet_dict["resize_mode"] = controlnet_dict['resize_mode'].int_value()
+                server_controlnet_dict["control_mode"] = controlnet_dict['control_mode'].int_value()
+
 
 
                 if not controlnet_dict["image"] == None:
@@ -215,5 +212,18 @@ def txt2img_with_server(id_task: str, request: gr.Request, *args):
 
                 controlnet_unit_list.append(server_controlnet_dict)    
     
-    return sd_dict, controlnet_unit_list
-            
+    
+    sd_server_url = 'https://wcidfu.nerdystar.io/server_stable_diffusion/generate_t2i/'
+    
+    data_to_send = {
+        "email": email_input,
+        "sd_parameters": sd_dict,
+        "controlnet_parameters": controlnet_unit_list
+    }
+
+    response = requests.post(sd_server_url, json=data_to_send)
+
+    if response.status_code == 200:
+        print(response.json)
+
+    return response
