@@ -145,8 +145,8 @@ def txt2img_with_server(id_task: str, request: gr.Request, *args):
     p = txt2img_create_processing(id_task, request, *params)
     
     sd_dict = {
-        "model_hash" : p.sd_model_hash, 
-        "model_name" : p.sd_model_name,
+        "model_hash" : "cbfba64e66", 
+        "model_name" : "CounterfeitV30_v30",
         "sampler" : p.sampler,
         "prompt" : p.prompt,
         "negative_prompt" : p.negative_prompt,
