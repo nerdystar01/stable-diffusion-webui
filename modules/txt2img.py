@@ -231,6 +231,9 @@ def txt2img_with_server(id_task: str, request: gr.Request, *args):
         "controlnet_parameters": controlnet_unit_list
     }
     print("이미지 생성 요청")
+    print(p.sd_model_hash)
+    print(sd_dict)
+
     response = requests.post(sd_server_url, json=data_to_send)
 
     # print("controlnet_unit_list")
@@ -241,7 +244,7 @@ def txt2img_with_server(id_task: str, request: gr.Request, *args):
         print("Request failed.")
         print("Status Code:", response.status_code)
         try:
-            error_message = response.json()
+            error_message = response.text
             print("Response Body:", error_message)
         except ValueError:
             print("Response Body is not a valid JSON.")
