@@ -138,12 +138,21 @@ def txt2img_with_server(id_task: str, request: gr.Request, *args):
     email_input = args[0]
 
     params = args[1:]
-    
     p = txt2img_create_processing(id_task, request, *params)
 
+    model_hash = p.sd_model_hash
+    model_name = p.sd_model_name
+
+    print("modle 학인")
+    print(model_hash)
+    print(model_hash)
+
+    print("스크립트 확인")
+    print(p.scripts)
+
     sd_dict = {
-        "model_hash" : p.sd_model_hash, 
-        "model_name" : p.sd_model_name,
+        "model_hash" : model_hash,
+        "model_name" : model_name,
         "sampler" : p.sampler_name,
         "prompt" : p.prompt,
         "negative_prompt" : p.negative_prompt,
@@ -226,12 +235,12 @@ def txt2img_with_server(id_task: str, request: gr.Request, *args):
 
     data_to_send = {
         "email": email_input,
-        "sd_model_hash" : p.sd_model_hash,
+        "sd_model_hash" : model_hash,
         "sd_parameters": sd_dict,
         "controlnet_parameters": controlnet_unit_list
     }
     print("이미지 생성 요청")
-    print(p.sd_model_hash)
+    print(model_hash)
     print(sd_dict)
 
     response = requests.post(sd_server_url, json=data_to_send)
@@ -241,11 +250,12 @@ def txt2img_with_server(id_task: str, request: gr.Request, *args):
     # print(type(controlnet_unit_list[0]['model']))
 
     if response.status_code != 200:
-        print("Request failed.")
-        print("Status Code:", response.status_code)
         try:
             error_message = response.text
+            print("Status Code:", response.status_code)
+            print("Request failed.")
             print("Response Body:", error_message)
+            print("Request failed.")
         except ValueError:
             print("Response Body is not a valid JSON.")
             print("Response Body:", response.text)
