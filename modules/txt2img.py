@@ -240,7 +240,7 @@ def txt2img_with_server(id_task: str, request: gr.Request, *args):
     if response.status_code != 200:
         print("Request failed.")
         print("Status Code:", response.status_code)
-        print("Response Body:", response.text)
+        print("Response Body:", response)
     else:
         print("Request succeeded.")
         print("Response JSON:", response.json())
