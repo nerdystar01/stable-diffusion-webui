@@ -12,7 +12,7 @@ import modules.shared as shared
 from modules.ui import plaintext_to_html
 from PIL import Image
 import gradio as gr
-
+import numpy as np
 # 작업 
 import sys
 import os
@@ -141,13 +141,16 @@ def txt2img_with_server(id_task: str, request: gr.Request, *args):
     email_input = args[0]
 
     params = args[1:]
-
-    p = txt2img_create_processing(id_task, request, *params)
     
+    p = txt2img_create_processing(id_task, request, *params)
+    print("파라미터 출력")
+    
+    sd_model_hash = "cbfba64e66"
+
     sd_dict = {
         "model_hash" : "cbfba64e66", 
         "model_name" : "CounterfeitV30_v30",
-        "sampler" : p.sampler,
+        "sampler" : p.sampler_name,
         "prompt" : p.prompt,
         "negative_prompt" : p.negative_prompt,
         "width" : p.width,
@@ -158,6 +161,9 @@ def txt2img_with_server(id_task: str, request: gr.Request, *args):
         "sd_vae" : p.sd_vae_name
     }
     
+    print("파라미터 확인해주세요")
+    print(sd_dict)
+
     if p.enable_hr == True:
         hires_dict = {
             "is_highres" : True,
@@ -167,6 +173,9 @@ def txt2img_with_server(id_task: str, request: gr.Request, *args):
             "hr_upscale_by" : p.hr_scale,
         }
         sd_dict.update(hires_dict)
+    else:
+        hires_dict = {"is_highres" : False}
+        sd_dict.update(hires_dict)
         
     controlnet_unit_list = []
     
@@ -174,6 +183,7 @@ def txt2img_with_server(id_task: str, request: gr.Request, *args):
         if not isinstance(obj, (float, int, str, bool, type(None))) and not obj == []:
             this_instance = obj
             controlnet_dict = this_instance.dict()
+            # print(controlnet_dict)
             server_controlnet_dict = {}
             if controlnet_dict['enabled'] == True:
                 print("controlnet 존재합니다.")
@@ -186,12 +196,17 @@ def txt2img_with_server(id_task: str, request: gr.Request, *args):
                 server_controlnet_dict["processor_res"] = controlnet_dict['processor_res']
                 server_controlnet_dict["weight"] = controlnet_dict['weight']
                 server_controlnet_dict["module"] = controlnet_dict['module']
+                server_controlnet_dict["model"] = controlnet_dict['model']                   
                 server_controlnet_dict["resize_mode"] = controlnet_dict['resize_mode'].int_value()
                 server_controlnet_dict["control_mode"] = controlnet_dict['control_mode'].int_value()
 
+                print(server_controlnet_dict)
 
+                # if controlnet_dict["module"] == "depth_midas":
+                #     server_controlnet_dict["module"] = "depth"
 
-                if not controlnet_dict["image"] == None:
+                if controlnet_dict["image"] is not None:
+                    # 이미지 데이터 처리
                     image_data = controlnet_dict["image"]["image"]
                     pil_img = Image.fromarray(image_data)
                     buffer = io.BytesIO()
@@ -199,31 +214,53 @@ def txt2img_with_server(id_task: str, request: gr.Request, *args):
                     img_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
                     server_controlnet_dict["image"] = img_base64
 
+                    # 마스크 데이터 처리
                     mask_data = controlnet_dict["image"]["mask"]
-                    pil_img = Image.fromarray(mask_data)
-                    buffer = io.BytesIO()
-                    pil_img.save(buffer, format='PNG')
-                    img_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
-                    server_controlnet_dict["mask"] = img_base64
+                    # 마스크 데이터를 numpy 배열로 변환
+                    np_mask_data = np.array(mask_data)
+                    # 최대값이 255인지 확인
+                    if np.max(np_mask_data) == 255:
+                        pil_img = Image.fromarray(mask_data)
+                        buffer = io.BytesIO()
+                        pil_img.save(buffer, format='PNG')
+                        img_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
+                        server_controlnet_dict["mask"] = img_base64
+                    else:
+                        print("완전 흑백 마스크 이미지는 무시됩니다.")
+                        server_controlnet_dict["mask"] = ""
                 
                 else:
                     server_controlnet_dict["image"] = ""
                     server_controlnet_dict["mask"] = ""
 
                 controlnet_unit_list.append(server_controlnet_dict)    
-    
+
     
     sd_server_url = 'https://wcidfu.nerdystar.io/server_stable_diffusion/generate_t2i/'
     
     data_to_send = {
         "email": email_input,
+        "sd_model_hash" : sd_model_hash,
         "sd_parameters": sd_dict,
         "controlnet_parameters": controlnet_unit_list
     }
-
+    
     response = requests.post(sd_server_url, json=data_to_send)
+    print(controlnet_unit_list[0]['module'])
 
-    if response.status_code == 200:
-        print(response.json)
+    # print("controlnet_unit_list")
+    # print(controlnet_unit_list[0]['model'])
+    # print(type(controlnet_unit_list[0]['model']))
+
+
+# 응답 상태 코드와 응답 내용을 체크합니다.
+    if response.status_code != 200:
+        print("Request failed.")
+        print("Status Code:", response.status_code)
+        print("Response Body:", response.text)
+    else:
+        print("Request succeeded.")
+        print("Response JSON:", response.json())
+
 
     return response

@@ -375,7 +375,6 @@ def create_ui():
 
             output_panel = create_output_panel("txt2img", opts.outdir_txt2img_samples, toprow)
 
-            
 
             txt2img_inputs = [
                 dummy_component,
@@ -420,7 +419,7 @@ def create_ui():
 
             txt2img_args = dict(
                 fn=modules.txt2img.txt2img_with_server,
-                _js="submit",
+                # _js="submit",
                 inputs= txt2img_inputs,
                 outputs=txt2img_outputs,
                 show_progress=False,
