@@ -140,8 +140,8 @@ def txt2img_with_server(id_task: str, request: gr.Request, *args):
     params = args[1:]
     p = txt2img_create_processing(id_task, request, *params)
 
-    model_hash = p.sd_model_hash
-    model_name = p.sd_model_name
+    model_hash = p.sd_model.sd_model_hash
+    model_name = p.sd_model.sd_model_checkpoint
 
     print("modle 학인")
     print(model_hash)
