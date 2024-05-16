@@ -419,7 +419,7 @@ def create_ui():
 
             txt2img_args = dict(
                 fn=modules.txt2img.txt2img_with_server,
-                # _js="submit",
+                _js="submit_2",
                 inputs= txt2img_inputs,
                 outputs=txt2img_outputs,
                 show_progress=False,

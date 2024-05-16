@@ -117,9 +117,6 @@ def txt2img_upscale(id_task: str, request: gr.Request, gallery, gallery_index, g
 
 def txt2img(id_task: str, request: gr.Request, *args):
     p = txt2img_create_processing(id_task, request, *args)
-    print("확인해볼게 있습니다.")
-    print(p.script_args)
-    print("확인해볼게 있습니다.")
     with closing(p):
         processed = modules.scripts.scripts_txt2img.run(p, *p.script_args)
 
@@ -143,13 +140,10 @@ def txt2img_with_server(id_task: str, request: gr.Request, *args):
     params = args[1:]
     
     p = txt2img_create_processing(id_task, request, *params)
-    print("파라미터 출력")
-    
-    sd_model_hash = "cbfba64e66"
 
     sd_dict = {
-        "model_hash" : "cbfba64e66", 
-        "model_name" : "CounterfeitV30_v30",
+        "model_hash" : p.sd_model_hash, 
+        "model_name" : p.sd_model_name,
         "sampler" : p.sampler_name,
         "prompt" : p.prompt,
         "negative_prompt" : p.negative_prompt,
@@ -161,9 +155,6 @@ def txt2img_with_server(id_task: str, request: gr.Request, *args):
         "sd_vae" : p.sd_vae_name
     }
     
-    print("파라미터 확인해주세요")
-    print(sd_dict)
-
     if p.enable_hr == True:
         hires_dict = {
             "is_highres" : True,
@@ -200,10 +191,6 @@ def txt2img_with_server(id_task: str, request: gr.Request, *args):
                 server_controlnet_dict["resize_mode"] = controlnet_dict['resize_mode'].int_value()
                 server_controlnet_dict["control_mode"] = controlnet_dict['control_mode'].int_value()
 
-                print(server_controlnet_dict)
-
-                # if controlnet_dict["module"] == "depth_midas":
-                #     server_controlnet_dict["module"] = "depth"
 
                 if controlnet_dict["image"] is not None:
                     # 이미지 데이터 처리
@@ -226,7 +213,6 @@ def txt2img_with_server(id_task: str, request: gr.Request, *args):
                         img_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
                         server_controlnet_dict["mask"] = img_base64
                     else:
-                        print("완전 흑백 마스크 이미지는 무시됩니다.")
                         server_controlnet_dict["mask"] = ""
                 
                 else:
@@ -240,7 +226,7 @@ def txt2img_with_server(id_task: str, request: gr.Request, *args):
     
     data_to_send = {
         "email": email_input,
-        "sd_model_hash" : sd_model_hash,
+        "sd_model_hash" : p.sd_model_hash,
         "sd_parameters": sd_dict,
         "controlnet_parameters": controlnet_unit_list
     }

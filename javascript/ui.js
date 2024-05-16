@@ -160,6 +160,7 @@ function submit() {
 }
 
 function submit_2() {
+    showSubmitButtons('txt2img', false);
 
     var id = randomId();
     localSet("txt2img_task_id", id);
@@ -170,9 +171,13 @@ function submit_2() {
     //     showRestoreProgressButton('txt2img', false);
     // });
     var res = create_submit_args(arguments);
+    
+    setTimeout(function() {
+        showSubmitButtons('txt2img', true);
+    }, 5000); // 5000ms = 5초
 
     res[0] = id;
-    print(res)
+    
     return res;
 }
 

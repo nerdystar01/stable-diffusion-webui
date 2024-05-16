@@ -100,8 +100,10 @@ class Toprow:
             self.interrupt = gr.Button('Interrupt', elem_id=f"{self.id_part}_interrupt", elem_classes="generate-box-interrupt", tooltip="End generation immediately or after completing current batch")
             self.skip = gr.Button('Skip', elem_id=f"{self.id_part}_skip", elem_classes="generate-box-skip", tooltip="Stop generation of current batch and continues onto next batch")
             self.interrupting = gr.Button('Interrupting...', elem_id=f"{self.id_part}_interrupting", elem_classes="generate-box-interrupting", tooltip="Interrupting generation...")
+            self.off = gr.Button('이미지 생성이 확인된 후 다시 생성을 요청해주세요.', elem_id=f"{self.id_part}_generate_box_off", elem_classes="generate-box-off")
             self.submit = gr.Button('Nerdy Server Generate', elem_id=f"{self.id_part}_generate", variant='primary', tooltip="Right click generate forever menu")
             self.email_input = gr.Textbox(label="Email ( 필수입력 🙏 )", elem_id=f"{self.id_part}_email", placeholder="이메일 입력을 해주세요.", type="email", elem_classes=["email-input"])
+            
 
             def interrupt_function():
                 if not shared.state.stopping_generation and shared.state.job_count > 1 and shared.opts.interrupt_after_current:
