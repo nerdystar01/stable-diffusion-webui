@@ -223,7 +223,7 @@ def txt2img_with_server(id_task: str, request: gr.Request, *args):
 
     
     sd_server_url = 'https://wcidfu.nerdystar.io/server_stable_diffusion/generate_t2i/'
-    
+
     data_to_send = {
         "email": email_input,
         "sd_model_hash" : p.sd_model_hash,
@@ -240,10 +240,14 @@ def txt2img_with_server(id_task: str, request: gr.Request, *args):
     if response.status_code != 200:
         print("Request failed.")
         print("Status Code:", response.status_code)
-        print("Response Body:", response)
+        try:
+            error_message = response.json()
+            print("Response Body:", error_message)
+        except ValueError:
+            print("Response Body is not a valid JSON.")
+            print("Response Body:", response.text)
     else:
         print("Request succeeded.")
         print("Response JSON:", response.json())
-
 
     return response
