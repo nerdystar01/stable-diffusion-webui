@@ -230,9 +230,8 @@ def txt2img_with_server(id_task: str, request: gr.Request, *args):
         "sd_parameters": sd_dict,
         "controlnet_parameters": controlnet_unit_list
     }
-    
+    print("이미지 생성 요청")
     response = requests.post(sd_server_url, json=data_to_send)
-    print(controlnet_unit_list[0]['module'])
 
     # print("controlnet_unit_list")
     # print(controlnet_unit_list[0]['model'])
