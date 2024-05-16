@@ -409,21 +409,21 @@ def create_ui():
                 output_panel.html_log,
             ]
 
-            txt2img_args = dict(
-                fn=wrap_gradio_gpu_call(modules.txt2img.txt2img, extra_outputs=[None, '', '']),
-                _js="submit",
-                inputs=txt2img_inputs,
-                outputs=txt2img_outputs,
-                show_progress=False,
-            )
-
             # txt2img_args = dict(
-            #     fn=modules.txt2img.txt2img_with_server,
-            #     # _js="submit",
-            #     inputs= txt2img_inputs,
+            #     fn=wrap_gradio_gpu_call(modules.txt2img.txt2img, extra_outputs=[None, '', '']),
+            #     _js="submit",
+            #     inputs=txt2img_inputs,
             #     outputs=txt2img_outputs,
             #     show_progress=False,
             # )
+
+            txt2img_args = dict(
+                fn=modules.txt2img.txt2img_with_server,
+                # _js="submit",
+                inputs= txt2img_inputs,
+                outputs=txt2img_outputs,
+                show_progress=False,
+            )
             
             toprow.prompt.submit(**txt2img_args)
             toprow.submit.click(**txt2img_args)
