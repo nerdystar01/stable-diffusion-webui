@@ -238,8 +238,6 @@ def txt2img_with_server(id_task: str, request: gr.Request, *args):
     # print(controlnet_unit_list[0]['model'])
     # print(type(controlnet_unit_list[0]['model']))
 
-
-# 응답 상태 코드와 응답 내용을 체크합니다.
     if response.status_code != 200:
         print("Request failed.")
         print("Status Code:", response.status_code)
