@@ -150,6 +150,8 @@ def txt2img_with_server(id_task: str, request: gr.Request, *args):
     print("스크립트 확인")
     print(p.scripts)
 
+    batch_count = p.n_iter
+
     sd_dict = {
         "model_hash" : model_hash,
         "model_name" : model_name,
@@ -244,24 +246,35 @@ def txt2img_with_server(id_task: str, request: gr.Request, *args):
     print(model_hash)
     print(sd_dict)
 
-    response = requests.post(sd_server_url, json=data_to_send)
 
-    # print("controlnet_unit_list")
-    # print(controlnet_unit_list[0]['model'])
-    # print(type(controlnet_unit_list[0]['model']))
+    for i in batch_count:
+        response = requests.post(sd_server_url, json=data_to_send)
 
-    if response.status_code != 200:
-        try:
-            error_message = response.text
-            print("Status Code:", response.status_code)
-            print("Request failed.")
-            print("Response Body:", error_message)
-            print("Request failed.")
-        except ValueError:
-            print("Response Body is not a valid JSON.")
-            print("Response Body:", response.text)
-    else:
-        print("Request succeeded.")
-        print("Response JSON:", response.json())
+        # print("controlnet_unit_list")
+        # print(controlnet_unit_list[0]['model'])
+        # print(type(controlnet_unit_list[0]['model']))
 
-    return response
+        if response.status_code != 200:
+            try:
+                error_message = response.text
+                print("Status Code:", response.status_code)
+                print("Request failed.")
+                print("Response Body:", error_message)
+                print("Request failed.")
+            except ValueError:
+                print("Response Body is not a valid JSON.")
+                print("Response Body:", response.text)
+        else:
+            print("    __  _______ ______   ______          __ ______      ____                         ")
+            print("   / / / / ___// ____/  /_  __/__  _  __/ //_  __/___  /  _/___ ___  ____ _____ ____ ")
+            print("  / / / /\__ \/ __/      / / / _ \| |/_/ __// / / __ \ / // __ `__ \/ __ `/ __ `/ _ \ ")
+            print(" / /_/ /___/ / /___     / / /  __/>  </ /_ / / / /_/ // // / / / / / /_/ / /_/ /  __/ ")
+            print(" \____//____/_____/    /_/  \___/_/|_|\__//_/  \____/___/_/ /_/ /_/\__,_/\__, /\___/ ")
+            print("                                                                        /____/       ")
+            print("   _____                                   ____                              ______                           __      ")
+            print("  / ___/__  _______________  __________   /  _/___ ___  ____ _____ ____     / ____/__  ____  ___  _________ _/ /____  ")
+            print("  \__ \/ / / / ___/ ___/ _ \/ ___/ ___/   / // __ `__ \/ __ `/ __ `/ _ \   / / __/ _ \/ __ \/ _ \/ ___/ __ `/ __/ _ \ ")
+            print(" ___/ / /_/ / /__/ /__/  __(__  |__  )  _/ // / / / / / /_/ / /_/ /  __/  / /_/ /  __/ / / /  __/ /  / /_/ / /_/  __/ ")
+            print("/____/\__,_/\___/\___/\___/____/____/  /___/_/ /_/ /_/\__,_/\__, /\___/   \____/\___/_/ /_/\___/_/   \__,_/\__/\___/  ")
+            print("                                                           /____/                                    ")
+            print("Response JSON:", response.json())
