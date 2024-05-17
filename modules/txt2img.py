@@ -181,7 +181,7 @@ def txt2img_with_server(id_task: str, request: gr.Request, *args):
     
     print(p.script_args)
     for obj in p.script_args:
-        if not isinstance(obj, (float, int, str, bool, type(None))) and not obj == []:
+        if not isinstance(obj, (float, int, str, bool, type(None), dict)) and not obj == []:
             this_instance = obj
             controlnet_dict = this_instance.dict()
             # print(controlnet_dict)
