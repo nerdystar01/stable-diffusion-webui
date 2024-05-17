@@ -247,7 +247,7 @@ def txt2img_with_server(id_task: str, request: gr.Request, *args):
     print(sd_dict)
 
 
-    for i in batch_count:
+    for i in range(batch_count):
         response = requests.post(sd_server_url, json=data_to_send)
 
         # print("controlnet_unit_list")
