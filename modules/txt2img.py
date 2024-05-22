@@ -157,7 +157,7 @@ def txt2img_with_server(id_task: str, request: gr.Request, *args):
         "steps" : p.steps,
         "cfg_scale" : p.cfg_scale,
         "seed" : p.seed,
-        # "sd_vae" : sd_vae
+        "sd_vae" : sd_vae
     }
     
     if p.enable_hr == True:
