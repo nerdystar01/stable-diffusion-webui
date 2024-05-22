@@ -63,7 +63,7 @@ def txt2img_create_processing(id_task: str, request: gr.Request, prompt: str, ne
 
     p.scripts = modules.scripts.scripts_txt2img
     p.script_args = args
-
+    
     p.user = request.username
 
     if shared.opts.enable_console_prompts:
@@ -136,6 +136,8 @@ def txt2img(id_task: str, request: gr.Request, *args):
 
 def txt2img_with_server(id_task: str, request: gr.Request, *args):
     email_input = args[0]
+    print("입력값 찾기")
+    print(args)
 
     params = args[1:]
     p = txt2img_create_processing(id_task, request, *params)
