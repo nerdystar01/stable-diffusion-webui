@@ -93,6 +93,11 @@ class Toprow:
             show_progress=False,
         )
 
+    def get_sd_vaes(self):
+        import modules.sd_vae as sd_vae
+        model_names = ["Automatic"] + list(sd_vae.vae_dict.keys())  # "Automatic"을 리스트의 첫 요소로 추가
+        return model_names
+
     def create_submit_box(self):
         with gr.Row(elem_id=f"{self.id_part}_generate_box", elem_classes=["generate-box"] + (["generate-box-compact"] if self.is_compact else []), render=not self.is_compact) as submit_box:
             self.submit_box = submit_box
@@ -100,7 +105,7 @@ class Toprow:
             self.interrupt = gr.Button('Interrupt', elem_id=f"{self.id_part}_interrupt", elem_classes="generate-box-interrupt", tooltip="End generation immediately or after completing current batch")
             self.skip = gr.Button('Skip', elem_id=f"{self.id_part}_skip", elem_classes="generate-box-skip", tooltip="Stop generation of current batch and continues onto next batch")
             self.interrupting = gr.Button('Interrupting...', elem_id=f"{self.id_part}_interrupting", elem_classes="generate-box-interrupting", tooltip="Interrupting generation...")
-            self.off = gr.Button('이미지 생성이 확인된 후 다시 생성을 요청해주세요.', elem_id=f"{self.id_part}_generate_box_off", elem_classes="generate-box-off")
+            self.sd_vae = gr.Dropdown(label="SD VAE", elem_id=f"{self.id_part}_sd_vae", choices= self.get_sd_vaes(), value="Automatic")
             self.submit = gr.Button('Nerdy Server Generate', elem_id=f"{self.id_part}_generate", variant='primary', tooltip="Right click generate forever menu")
             self.email_input = gr.Textbox(label="Email ( 필수입력 🙏 )", elem_id=f"{self.id_part}_email", placeholder="이메일 입력을 해주세요.", type="email", elem_classes=["email-input"])
             

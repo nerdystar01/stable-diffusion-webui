@@ -379,6 +379,7 @@ def create_ui():
             txt2img_inputs = [
                 dummy_component,
                 toprow.email_input,
+                toprow.sd_vae,
                 toprow.prompt,
                 toprow.negative_prompt,
                 toprow.ui_styles.dropdown,
