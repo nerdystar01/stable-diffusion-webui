@@ -63,7 +63,7 @@ def txt2img_create_processing(id_task: str, request: gr.Request, prompt: str, ne
 
     p.scripts = modules.scripts.scripts_txt2img
     p.script_args = args
-
+    
     p.user = request.username
 
     if shared.opts.enable_console_prompts:
@@ -136,19 +136,13 @@ def txt2img(id_task: str, request: gr.Request, *args):
 
 def txt2img_with_server(id_task: str, request: gr.Request, *args):
     email_input = args[0]
-
-    params = args[1:]
+    sd_vae = args[1]
+    params = args[2:]
+        
     p = txt2img_create_processing(id_task, request, *params)
-
+    
     model_hash = p.sd_model.sd_model_hash
     model_name = p.sd_model.sd_model_checkpoint
-
-    print("modle 학인")
-    print(model_hash)
-    print(model_hash)
-
-    print("스크립트 확인")
-    print(p.scripts)
 
     batch_count = p.n_iter
 
@@ -163,7 +157,7 @@ def txt2img_with_server(id_task: str, request: gr.Request, *args):
         "steps" : p.steps,
         "cfg_scale" : p.cfg_scale,
         "seed" : p.seed,
-        "sd_vae" : p.sd_vae_name
+        "sd_vae" : sd_vae
     }
     
     if p.enable_hr == True:
@@ -181,13 +175,13 @@ def txt2img_with_server(id_task: str, request: gr.Request, *args):
         
     controlnet_unit_list = []
     
-    print(p.script_args)
+    
     for obj in p.script_args:
         if not isinstance(obj, (float, int, str, bool, type(None), dict)) and not obj == []:
             this_instance = obj
             controlnet_dict = this_instance.dict()
-            # print(controlnet_dict)
             server_controlnet_dict = {}
+
             if controlnet_dict['enabled'] == True:
                 print("controlnet 존재합니다.")
                 server_controlnet_dict["threshold_a"] = controlnet_dict['threshold_a']
@@ -202,7 +196,6 @@ def txt2img_with_server(id_task: str, request: gr.Request, *args):
                 server_controlnet_dict["model"] = controlnet_dict['model']                   
                 server_controlnet_dict["resize_mode"] = controlnet_dict['resize_mode'].int_value()
                 server_controlnet_dict["control_mode"] = controlnet_dict['control_mode'].int_value()
-
 
                 if controlnet_dict["image"] is not None:
                     # 이미지 데이터 처리
@@ -242,17 +235,11 @@ def txt2img_with_server(id_task: str, request: gr.Request, *args):
         "sd_parameters": sd_dict,
         "controlnet_parameters": controlnet_unit_list
     }
-    print("이미지 생성 요청")
-    print(model_hash)
-    print(sd_dict)
-
-
+    
     for i in range(batch_count):
         response = requests.post(sd_server_url, json=data_to_send)
 
-        # print("controlnet_unit_list")
-        # print(controlnet_unit_list[0]['model'])
-        # print(type(controlnet_unit_list[0]['model']))
+        print("controlnet_unit_list")
 
         if response.status_code != 200:
             try:
