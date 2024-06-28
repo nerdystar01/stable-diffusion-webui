@@ -150,7 +150,7 @@ def txt2img_with_server(id_task: str, request: gr.Request, *args):
         "model_hash" : model_hash,
         "model_name" : model_name,
         "sampler" : p.sampler_name,
-        "sampler_scheduler" : p.,
+        "sampler_scheduler" : p.sampler_index,
         "prompt" : p.prompt,
         "negative_prompt" : p.negative_prompt,
         "width" : p.width,
