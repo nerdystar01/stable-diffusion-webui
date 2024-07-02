@@ -182,7 +182,7 @@ def txt2img_with_server(id_task: str, request: gr.Request, *args):
             this_instance = obj
             controlnet_dict = this_instance.dict()
             server_controlnet_dict = {}
-
+            print(controlnet_dict)
             if controlnet_dict['enabled'] == True:
                 print("controlnet 존재합니다.")
                 server_controlnet_dict["threshold_a"] = controlnet_dict['threshold_a']
@@ -240,7 +240,7 @@ def txt2img_with_server(id_task: str, request: gr.Request, *args):
     for i in range(batch_count):
         response = requests.post(sd_server_url, json=data_to_send)
 
-        print("controlnet_unit_list")
+        print(controlnet_unit_list)
 
         if response.status_code != 200:
             try:
