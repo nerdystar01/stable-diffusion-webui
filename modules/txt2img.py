@@ -154,13 +154,10 @@ def txt2img_with_server(id_task: str, request: gr.Request, *args):
 
     batch_count = p.n_iter
 
-    if p.override_settings['sd_model_checkpoint']:
+    if p.override_settings.get('sd_model_checkpoint'):
         model_hash = p.override_settings['sd_model_checkpoint']
         title_list = checkpoint_tiles()
         model_name = next((title for title in title_list if model_hash in title), "Model not stored on Webui.")
-
-    else:
-        pass
 
     sd_dict = {
         "model_hash" : model_hash,
