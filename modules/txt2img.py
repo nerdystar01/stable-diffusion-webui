@@ -26,7 +26,7 @@ root_dir = os.path.dirname(os.path.dirname(current_dir))  # 두 단계 상위 �
 sys.path.append(root_dir)
 
 # 이제 절대 경로로 모듈을 임포트할 수 있습니다.
-from extensions.sd_webui_controlnet.internal_controlnet.args import ControlNetUnit
+# from extensions.sd_webui_controlnet.internal_controlnet.args import ControlNetUnit
 
 
 def txt2img_create_processing(id_task: str, request: gr.Request, prompt: str, negative_prompt: str, prompt_styles, n_iter: int, batch_size: int, cfg_scale: float, height: int, width: int, enable_hr: bool, denoising_strength: float, hr_scale: float, hr_upscaler: str, hr_second_pass_steps: int, hr_resize_x: int, hr_resize_y: int, hr_checkpoint_name: str, hr_sampler_name: str, hr_scheduler: str, hr_prompt: str, hr_negative_prompt, override_settings_texts, *args, force_enable_hr=False):
