@@ -94,7 +94,7 @@ class Toprow:
     def create_prompts(self):
         with gr.Column(elem_id=f"{self.id_part}_prompt_container", elem_classes=["prompt-container-compact"] if self.is_compact else [], scale=6):
             with gr.Row():
-                self.sd_checkpoint_dropdown = gr.Dropdown(label="stable diffusion checkpoint", elem_id=f"{self.id_part}_checkpoint_dropdown", choices=self.checkpoint_tiles())
+                self.sd_checkpoint_dropdown = gr.Dropdown(label="stable diffusion checkpoint", elem_id=f"{self.id_part}_checkpoint_dropdown", choices=self.checkpoint_tiles(), value= f"{self.checkpoint_tiles()[0]}")
                 self.sd_vae = gr.Dropdown(label="SD VAE", elem_id=f"{self.id_part}_sd_vae", choices= self.get_sd_vaes(), value="Automatic")
             with gr.Row(elem_id=f"{self.id_part}_prompt_row", elem_classes=["prompt-row"]):
                 self.prompt = gr.Textbox(label="Prompt", elem_id=f"{self.id_part}_prompt", show_label=False, lines=3, placeholder="Prompt\n(Press Ctrl+Enter to generate, Alt+Enter to skip, Esc to interrupt)", elem_classes=["prompt"])

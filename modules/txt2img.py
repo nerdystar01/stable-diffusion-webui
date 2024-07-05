@@ -31,7 +31,6 @@ from extensions.sd_webui_controlnet.internal_controlnet.args import ControlNetUn
 
 def txt2img_create_processing(id_task: str, request: gr.Request, prompt: str, negative_prompt: str, prompt_styles, n_iter: int, batch_size: int, cfg_scale: float, height: int, width: int, enable_hr: bool, denoising_strength: float, hr_scale: float, hr_upscaler: str, hr_second_pass_steps: int, hr_resize_x: int, hr_resize_y: int, hr_checkpoint_name: str, hr_sampler_name: str, hr_scheduler: str, hr_prompt: str, hr_negative_prompt, override_settings_texts, *args, force_enable_hr=False):
     override_settings = create_override_settings_dict(override_settings_texts)
-    print(override_settings)
 
     if force_enable_hr:
         enable_hr = True
@@ -136,16 +135,16 @@ def txt2img(id_task: str, request: gr.Request, *args):
 
     return processed.images, generation_info_js, plaintext_to_html(processed.info), plaintext_to_html(processed.comments, classname="comments")
 
+def checkpoint_tiles(use_short=False):
+    import modules.sd_models as sd_model    
+    return [x.short_title if use_short else x.title for x in sd_model.checkpoints_list.values()]
+
 def txt2img_with_server(id_task: str, request: gr.Request, *args):
-    email_input = args[1]
     sd_checkpoint_title = args[0]
+    email_input = args[1]
     sd_vae = args[2]
     params = args[3:]
     
-    def checkpoint_tiles(use_short=False):
-        import modules.sd_models as sd_model    
-        return [x.short_title if use_short else x.title for x in sd_model.checkpoints_list.values()]
-        
     p = txt2img_create_processing(id_task, request, *params)
     
     pattern = re.compile(r'\[(.*?)\]')
@@ -155,8 +154,11 @@ def txt2img_with_server(id_task: str, request: gr.Request, *args):
 
     batch_count = p.n_iter
 
+    if p.override_settings['sd_model_checkpoint']:
+        model_hash = p.override_settings['sd_model_checkpoint']
+        title_list = checkpoint_tiles()
+        model_name = next((title for title in title_list if model_hash in title), "Model not stored on Webui.")
 
-    
     sd_dict = {
         "model_hash" : model_hash,
         "model_name" : model_name,
@@ -169,7 +171,7 @@ def txt2img_with_server(id_task: str, request: gr.Request, *args):
         "steps" : p.steps,
         "cfg_scale" : p.cfg_scale,
         "seed" : p.seed,
-        "sd_vae" : p.sd_vae if p.sd_vae else sd_vae
+        "sd_vae" : p.override_settings['sd_vae'] if p.override_settings.get('sd_vae') else sd_vae
     }
     
     if p.enable_hr == True:
@@ -248,31 +250,32 @@ def txt2img_with_server(id_task: str, request: gr.Request, *args):
         "controlnet_parameters": controlnet_unit_list
     }
     
-    print(data_to_send['sd_parameters'])
-    # for i in range(batch_count):
-        # response = requests.post(sd_server_url, json=data_to_send)
+    print(data_to_send)
 
-        # if response.status_code != 200:
-        #     try:
-        #         error_message = response.text
-        #         print("Status Code:", response.status_code)
-        #         print("Request failed.")
-        #         print("Response Body:", error_message)
-        #         print("Request failed.")
-        #     except ValueError:
-        #         print("Response Body is not a valid JSON.")
-        #         print("Response Body:", response.text)
-        # else:
-        #     print("    __  _______ ______   ______          __ ______      ____                         ")
-        #     print("   / / / / ___// ____/  /_  __/__  _  __/ //_  __/___  /  _/___ ___  ____ _____ ____ ")
-        #     print("  / / / /\__ \/ __/      / / / _ \| |/_/ __// / / __ \ / // __ `__ \/ __ `/ __ `/ _ \ ")
-        #     print(" / /_/ /___/ / /___     / / /  __/>  </ /_ / / / /_/ // // / / / / / /_/ / /_/ /  __/ ")
-        #     print(" \____//____/_____/    /_/  \___/_/|_|\__//_/  \____/___/_/ /_/ /_/\__,_/\__, /\___/ ")
-        #     print("                                                                        /____/       ")
-        #     print("   _____                                   ____                              ______                           __      ")
-        #     print("  / ___/__  _______________  __________   /  _/___ ___  ____ _____ ____     / ____/__  ____  ___  _________ _/ /____  ")
-        #     print("  \__ \/ / / / ___/ ___/ _ \/ ___/ ___/   / // __ `__ \/ __ `/ __ `/ _ \   / / __/ _ \/ __ \/ _ \/ ___/ __ `/ __/ _ \ ")
-        #     print(" ___/ / /_/ / /__/ /__/  __(__  |__  )  _/ // / / / / / /_/ / /_/ /  __/  / /_/ /  __/ / / /  __/ /  / /_/ / /_/  __/ ")
-        #     print("/____/\__,_/\___/\___/\___/____/____/  /___/_/ /_/ /_/\__,_/\__, /\___/   \____/\___/_/ /_/\___/_/   \__,_/\__/\___/  ")
-        #     print("                                                           /____/                                    ")
-        #     print("Response JSON:", response.json())
+    for i in range(batch_count):
+        response = requests.post(sd_server_url, json=data_to_send)
+
+        if response.status_code != 200:
+            try:
+                error_message = response.text
+                print("Status Code:", response.status_code)
+                print("Request failed.")
+                print("Response Body:", error_message)
+                print("Request failed.")
+            except ValueError:
+                print("Response Body is not a valid JSON.")
+                print("Response Body:", response.text)
+        else:
+            print("    __  _______ ______   ______          __ ______      ____                         ")
+            print("   / / / / ___// ____/  /_  __/__  _  __/ //_  __/___  /  _/___ ___  ____ _____ ____ ")
+            print("  / / / /\__ \/ __/      / / / _ \| |/_/ __// / / __ \ / // __ `__ \/ __ `/ __ `/ _ \ ")
+            print(" / /_/ /___/ / /___     / / /  __/>  </ /_ / / / /_/ // // / / / / / /_/ / /_/ /  __/ ")
+            print(" \____//____/_____/    /_/  \___/_/|_|\__//_/  \____/___/_/ /_/ /_/\__,_/\__, /\___/ ")
+            print("                                                                        /____/       ")
+            print("   _____                                   ____                              ______                           __      ")
+            print("  / ___/__  _______________  __________   /  _/___ ___  ____ _____ ____     / ____/__  ____  ___  _________ _/ /____  ")
+            print("  \__ \/ / / / ___/ ___/ _ \/ ___/ ___/   / // __ `__ \/ __ `/ __ `/ _ \   / / __/ _ \/ __ \/ _ \/ ___/ __ `/ __/ _ \ ")
+            print(" ___/ / /_/ / /__/ /__/  __(__  |__  )  _/ // / / / / / /_/ / /_/ /  __/  / /_/ /  __/ / / /  __/ /  / /_/ / /_/  __/ ")
+            print("/____/\__,_/\___/\___/\___/____/____/  /___/_/ /_/ /_/\__,_/\__, /\___/   \____/\___/_/ /_/\___/_/   \__,_/\__/\___/  ")
+            print("                                                           /____/                                    ")
+            print("Response JSON:", response.json())
