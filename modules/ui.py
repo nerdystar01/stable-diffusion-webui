@@ -378,6 +378,7 @@ def create_ui():
 
             txt2img_inputs = [
                 dummy_component,
+                toprow.sd_checkpoint_dropdown,
                 toprow.email_input,
                 toprow.sd_vae,
                 toprow.prompt,
@@ -461,6 +462,9 @@ def create_ui():
             )
 
             txt2img_paste_fields = [
+                # PasteField(toprow.sd_vae, "SD VAE Model", api="sd_vae"),  
+                # PasteField(toprow.sd_checkpoint_dropdown, "SD Checkpoint", api="sd_checkpoint"),  
+                
                 PasteField(toprow.prompt, "Prompt", api="prompt"),
                 PasteField(toprow.negative_prompt, "Negative prompt", api="negative_prompt"),
                 PasteField(cfg_scale, "CFG scale", api="cfg_scale"),

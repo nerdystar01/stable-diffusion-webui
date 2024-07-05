@@ -1,4 +1,5 @@
 import gradio as gr
+import os
 
 from modules import shared, ui_prompt_styles
 import modules.images
@@ -77,8 +78,24 @@ class Toprow:
 
         self.submit_box.render()
 
+    def find_checkpoint_config_near_filename(info):
+        if info is None:
+            return None
+
+        config = f"{os.path.splitext(info.filename)[0]}.yaml"
+        if os.path.exists(config):
+            return config
+
+        return None
+    def checkpoint_tiles(use_short=False):
+        import modules.sd_models as sd_model    
+        return [x.short_title if use_short else x.title for x in sd_model.checkpoints_list.values()]
+
     def create_prompts(self):
         with gr.Column(elem_id=f"{self.id_part}_prompt_container", elem_classes=["prompt-container-compact"] if self.is_compact else [], scale=6):
+            with gr.Row():
+                self.sd_checkpoint_dropdown = gr.Dropdown(label="stable diffusion checkpoint", elem_id=f"{self.id_part}_checkpoint_dropdown", choices=self.checkpoint_tiles())
+                self.sd_vae = gr.Dropdown(label="SD VAE", elem_id=f"{self.id_part}_sd_vae", choices= self.get_sd_vaes(), value="Automatic")
             with gr.Row(elem_id=f"{self.id_part}_prompt_row", elem_classes=["prompt-row"]):
                 self.prompt = gr.Textbox(label="Prompt", elem_id=f"{self.id_part}_prompt", show_label=False, lines=3, placeholder="Prompt\n(Press Ctrl+Enter to generate, Alt+Enter to skip, Esc to interrupt)", elem_classes=["prompt"])
                 self.prompt_img = gr.File(label="", elem_id=f"{self.id_part}_prompt_image", file_count="single", type="binary", visible=False)
@@ -101,13 +118,13 @@ class Toprow:
     def create_submit_box(self):
         with gr.Row(elem_id=f"{self.id_part}_generate_box", elem_classes=["generate-box"] + (["generate-box-compact"] if self.is_compact else []), render=not self.is_compact) as submit_box:
             self.submit_box = submit_box
+            self.email_input = gr.Textbox(label="Email ( 필수입력 🙏 )", elem_id=f"{self.id_part}_email", placeholder="이메일 입력을 해주세요.", type="email", elem_classes=["email-input"])
 
             self.interrupt = gr.Button('Interrupt', elem_id=f"{self.id_part}_interrupt", elem_classes="generate-box-interrupt", tooltip="End generation immediately or after completing current batch")
             self.skip = gr.Button('Skip', elem_id=f"{self.id_part}_skip", elem_classes="generate-box-skip", tooltip="Stop generation of current batch and continues onto next batch")
             self.interrupting = gr.Button('Interrupting...', elem_id=f"{self.id_part}_interrupting", elem_classes="generate-box-interrupting", tooltip="Interrupting generation...")
-            self.sd_vae = gr.Dropdown(label="SD VAE", elem_id=f"{self.id_part}_sd_vae", choices= self.get_sd_vaes(), value="Automatic")
+            # self.sd_vae = gr.Dropdown(label="SD VAE", elem_id=f"{self.id_part}_sd_vae", choices= self.get_sd_vaes(), value="Automatic")
             self.submit = gr.Button('Nerdy Server Generate', elem_id=f"{self.id_part}_generate", variant='primary', tooltip="Right click generate forever menu")
-            self.email_input = gr.Textbox(label="Email ( 필수입력 🙏 )", elem_id=f"{self.id_part}_email", placeholder="이메일 입력을 해주세요.", type="email", elem_classes=["email-input"])
             
 
             def interrupt_function():
