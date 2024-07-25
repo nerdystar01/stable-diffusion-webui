@@ -223,15 +223,27 @@ def txt2img_with_server(id_task: str, request: gr.Request, *args):
 
                     # 마스크 데이터 처리
                     mask_data = controlnet_dict["image"]["mask"]
+                    effective_region_mask_data = controlnet_dict["image"]["effective_region_mask"]
                     # 마스크 데이터를 numpy 배열로 변환
+                    np_mask_data = np.array(mask_data)
+                    np_effective_region_mask_data = np.array(effective_region_mask_data)
                     
-                    # 최대값이 255인지 확인
-                    pil_img = Image.fromarray(mask_data)
-                    buffer = io.BytesIO()
-                    pil_img.save(buffer, format='PNG')
-                    img_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
-                    server_controlnet_dict["mask"] = img_base64
+                    if np.max(np_effective_region_mask_data) == 255:
+                        pil_img = Image.fromarray(effective_region_mask_data)
+                        buffer = io.BytesIO()
+                        pil_img.save(buffer, format='PNG')
+                        img_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
+                        server_controlnet_dict["mask"] = img_base64
+
+                    elif np.max(np_mask_data) == 255:
+                        pil_img = Image.fromarray(mask_data)
+                        buffer = io.BytesIO()
+                        pil_img.save(buffer, format='PNG')
+                        img_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
+                        server_controlnet_dict["mask"] = img_base64
                     
+                    else:
+                        server_controlnet_dict["mask"] = ""
                 
                 else:
                     server_controlnet_dict["image"] = ""
