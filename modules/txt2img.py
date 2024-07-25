@@ -223,7 +223,7 @@ def txt2img_with_server(id_task: str, request: gr.Request, *args):
 
                     # 마스크 데이터 처리
                     mask_data = controlnet_dict["image"]["mask"]
-                    effective_region_mask_data = controlnet_dict["image"]["effective_region_mask"]
+                    effective_region_mask_data = controlnet_dict["effective_region_mask"]
                     # 마스크 데이터를 numpy 배열로 변환
                     np_mask_data = np.array(mask_data)
                     np_effective_region_mask_data = np.array(effective_region_mask_data)
