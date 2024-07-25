@@ -194,6 +194,7 @@ def txt2img_with_server(id_task: str, request: gr.Request, *args):
         if not isinstance(obj, (float, int, str, bool, type(None), dict)) and not obj == []:
             this_instance = obj
             controlnet_dict = this_instance.dict()
+            print(controlnet_dict)
             server_controlnet_dict = {}
             
             if controlnet_dict['enabled'] == True:
@@ -250,8 +251,6 @@ def txt2img_with_server(id_task: str, request: gr.Request, *args):
         "controlnet_parameters": controlnet_unit_list
     }
     
-    print(data_to_send)
-
     for i in range(batch_count):
         response = requests.post(sd_server_url, json=data_to_send)
 
