@@ -78,18 +78,27 @@ def get_learned_conditioning_prompt_schedules(prompts, base_steps, hires_steps=N
         class CollectSteps(lark.Visitor):
             def scheduled(self, tree):
                 s = tree.children[-2]
-                v = float(s)
+                
+                try:
+                    # s가 Tree 객체인 경우를 처리
+                    if hasattr(s, 'children'):
+                        v = float(str(s.children[0]))
+                    else:
+                        v = float(s)
+                except:
+                    # 에러 발생 시 기본값 사용
+                    v = 1.0
+                    
                 if use_old_scheduling:
                     v = v*steps if v<1 else v
                 else:
-                    if "." in s:
+                    if "." in str(s):
                         v = (v - flt_offset) * steps
                     else:
                         v = (v - int_offset)
                 tree.children[-2] = min(steps, int(v))
                 if tree.children[-2] >= 1:
                     res.append(tree.children[-2])
-
             def alternate(self, tree):
                 res.extend(range(1, steps+1))
 
